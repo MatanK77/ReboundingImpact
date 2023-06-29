@@ -4,7 +4,7 @@
 library(tidyverse)
 library(hoopR)
 
-# Necessary Datasets (in CSV files)
+# Necessary Datasets (in CSV files. Make sure to have numeric cols as numeric)
 
 FourFactorsRAPM2022
 FourFactorsRAPM2023
