@@ -194,5 +194,4 @@ a_2122<- reb_impact_function_withxg(season = "2021-22", orebmodel = linear_model
 a_2223 <- reb_impact_function_withxg(season = "2022-23", orebmodel = linear_model_oreb_noPos_simple, drebmodel = linear_model_dreb_clusters_simple,
                                      drebmodelxgboost = xgb_model)
 
-a_2122<- reb_impact_function_withxg(season = "2021-22", orebmodel = linear_model_oreb_noPos_simple, drebmodel = linear_model_dreb_clusters_simple,
-                                    drebmodelxgboost = xgb_model)
+
