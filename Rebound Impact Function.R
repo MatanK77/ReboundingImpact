@@ -2,13 +2,16 @@
 # a RR DReb model and an XGBoost DReb Model. The construction of these models can be found elsewhere in the repo (Rebound Impact Modeling
 # and XGBoost DReb Impact). It outputs a leaderboard for that given season in predicted rebounding impact. It can be used for any season where
 # tracking data is available but was modeled on 2020-2023 data (The NBA seems to have changed boxout definitions prior to then, so models have
-# to be trained on prior data to be accurate)
+# to be trained on prior data to be accurate). In order to run the function, make sure to also have the kmeans.out clustering object from the 
+# "Rebound Impact Modeling" script in the Global Environment.
+
 
 
 
 
 reb_impact_function_withxg <- function(season, orebmodel, drebmodel, drebmodelxgboost) {
-  # Get Rebound Tracking Data Using HoopR
+ 
+   # Get Rebound Tracking Data Using HoopR
   Q_func <- nba_leaguedashptstats(league_id = "00", per_mode = "Totals", player_or_team = "Player", pt_measure_type = "Rebounding", season = season)
   
   rebounding_tracking_func <- Q_func[["LeagueDashPtStats"]]
@@ -128,20 +131,15 @@ reb_impact_function_withxg <- function(season, orebmodel, drebmodel, drebmodelxg
   
   defensive_cluster_data_func[,c(4:9)] = scale(defensive_cluster_data_func[,c(4:9)])
   
-  # Going to use 8 clusters
-  k <- 8
-  set.seed(227)
-  kmeans.out2_func <- kmeans(defensive_cluster_data_func[,c(4:9)], centers = 8, nstart = 20)
   
-  # Putting clusters into table
+  # Assign the new data points to the existing clusters based on the previously obtained centroids
   
-  kmeans_clusters_func <- as.data.frame(kmeans.out2_func$centers)
+  defensive_cluster_data_func$cluster <- kmeans(defensive_cluster_data_func[, c(4:9)], centers = kmeans.out$centers)$cluster
   
-  kmeans_clusters_func <- kmeans_clusters_func %>%
-    mutate(Cluster = c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"), .before = DREB)
   
   # Players and their Clusters
-  players_and_cluster2_func <- tibble(name = defensive_cluster_data_func$PLAYER_NAME, cluster = kmeans.out2_func$cluster, PLAYER_ID = defensive_cluster_data_func$PLAYER_ID)
+  players_and_cluster2_func <- tibble(name = defensive_cluster_data_func$PLAYER_NAME, 
+                                      cluster = defensive_cluster_data_func$cluster, PLAYER_ID = defensive_cluster_data_func$PLAYER_ID)
   
   players_and_cluster2_func$cluster <- as.character(players_and_cluster2_func$cluster)
   
@@ -187,6 +185,11 @@ reb_impact_function_withxg <- function(season, orebmodel, drebmodel, drebmodelxg
   
   return(rebound_impact_func)
 }
+
+
+
+a_2122<- reb_impact_function_withxg(season = "2021-22", orebmodel = linear_model_oreb_noPos_simple, drebmodel = linear_model_dreb_clusters_simple,
+                                    drebmodelxgboost = xgb_model)
 
 a_2223 <- reb_impact_function_withxg(season = "2022-23", orebmodel = linear_model_oreb_noPos_simple, drebmodel = linear_model_dreb_clusters_simple,
                                      drebmodelxgboost = xgb_model)
